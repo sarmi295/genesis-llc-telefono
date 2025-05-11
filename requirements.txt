@@ -2,5 +2,4 @@ Flask
 python-dotenv
 openai>=1.78.0
 twilio
-email
-# smtplib NO se debe incluir, es parte de la librería estándar de Python
+# smtplib y email son parte de la librería estándar de Python, no deben estar aquí
