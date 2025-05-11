@@ -2,4 +2,5 @@ Flask
 python-dotenv
 openai>=1.78.0
 twilio
+gunicorn
 # smtplib y email son parte de la librería estándar de Python, no deben estar aquí
