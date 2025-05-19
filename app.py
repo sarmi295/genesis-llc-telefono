@@ -1436,6 +1436,9 @@ def pagina_no_encontrada(e):
     ''', 404
 
 @app.route("/")
+def index():
+    return redirect(url_for('admin_panel'))
+
 def home():
     return '''
     <html><head><title>Genesis SA Services LLC</title>
