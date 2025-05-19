@@ -1,0 +1,3 @@
+# username:hashed_password (bcrypt)
+admin:$2b$12$VGLwLB2nxhDnYnT4owBYROm/9gYthzFZ7yAutA6Pu6jZGrMQL4w/.
+# Puedes agregar más administradores con bcrypt hash
