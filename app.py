@@ -100,8 +100,64 @@ def admin_required(f):
 def admin_panel():
     if not session.get("admin_user"):
         return redirect(url_for("login"))
-    # Aquí puedes renderizar el panel de administración real
-    return "<h1>Genesis SA Services LLC Admin Panel</h1><p>Bienvenido, {}!</p>".format(session["admin_user"])
+    # Leer citas
+    citas = []
+    if os.path.exists("citas_clientes.txt"):
+        with open("citas_clientes.txt", "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    partes = line.strip().split("|")
+                    if len(partes) >= 5:
+                        citas.append({
+                            "name": partes[0],
+                            "service": partes[1],
+                            "date": partes[2],
+                            "address": partes[3],
+                            "email": partes[4],
+                            "message": partes[5] if len(partes) > 5 else ""
+                        })
+    # Leer mensajes de voz
+    mensajes = []
+    if os.path.exists("mensajes_clientes.txt"):
+        with open("mensajes_clientes.txt", "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    mensajes.append(line.strip())
+    # Renderizar panel completo
+    return render_template_string('''
+    <html><head><title>Genesis SA Services LLC Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>body{font-family:Montserrat;background:#f8fafc;margin:0;padding:0;}
+    .container{max-width:1100px;margin:40px auto;background:#fff;padding:32px 28px;border-radius:14px;box-shadow:0 2px 12px rgba(44,83,100,0.13);}
+    h1{color:#1a365d;}
+    table{width:100%;border-collapse:collapse;margin-bottom:30px;}
+    th,td{border:1px solid #b0b8c1;padding:8px 10px;text-align:left;}
+    th{background:#e3eaf2;}
+    .section{margin-bottom:40px;}
+    .logout-btn{float:right;background:#c0392b;color:#fff;padding:7px 18px;border:none;border-radius:7px;font-weight:700;}
+    .logo-genesis{display:block;margin:0 auto 18px auto;width:90px;border-radius:10px;box-shadow:0 2px 8px rgba(44,83,100,0.10);}
+    </style></head><body>
+    <div class="container">
+    <img src="/static/logo_genesis.png" alt="Genesis Logo" class="logo-genesis"/>
+    <button class="logout-btn" onclick="window.location.href='/logout'">Logout</button>
+    <h1>Genesis SA Services LLC Admin Panel</h1>
+    <p>Welcome, {{user}}!</p>
+    <div class="section">
+    <h2>Appointments</h2>
+    {% if citas %}
+    <table><tr><th>Name</th><th>Service</th><th>Date</th><th>Address</th><th>Email</th><th>Message</th></tr>
+    {% for c in citas %}<tr><td>{{c.name}}</td><td>{{c.service}}</td><td>{{c.date}}</td><td>{{c.address}}</td><td>{{c.email}}</td><td>{{c.message}}</td></tr>{% endfor %}
+    </table>
+    {% else %}<p>No appointments found.</p>{% endif %}
+    </div>
+    <div class="section">
+    <h2>Voicemail Messages</h2>
+    {% if mensajes %}
+    <ul>{% for m in mensajes %}<li>{{m}}</li>{% endfor %}</ul>
+    {% else %}<p>No voicemail messages found.</p>{% endif %}
+    </div>
+    </div></body></html>
+    ''', user=session["admin_user"], citas=citas, mensajes=mensajes)
 
 @csrf.exempt
 @app.route("/voice", methods=["POST"])
