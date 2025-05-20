@@ -1,9 +1,8 @@
 Flask
 python-dotenv
-openai>=1.78.0
+openai
 twilio
 gunicorn
 flask-wtf
 bcrypt
 reportlab
-# smtplib y email son parte de la librería estándar de Python, no deben estar aquí
