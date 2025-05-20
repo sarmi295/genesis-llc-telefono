@@ -99,14 +99,22 @@ def admin_required(f):
 @app.route("/voice", methods=["POST"])
 def voice():
     resp = VoiceResponse()
-    resp.say("Hello and welcome to Genesis SA Services LLC! Please say your name after the beep.", voice='alice', language='en-US')
-    resp.gather(
+    gather = resp.gather(
         input='speech',
         action='/gather_name',
         method='POST',
-        timeout=5,
-        speechTimeout='auto'
+        timeout=7,
+        speechTimeout='auto',
+        voice='alice',
+        language='en-US'
     )
+    gather.say(
+        "Hello and welcome to Genesis SA Services LLC! We are honored to receive your call today. At Genesis, your satisfaction and peace of mind are our priority. May I have your name, please?",
+        voice='alice', language='en-US')
+    resp.say(
+        "We could not hear your response. If you need help, please call us again or visit genesissaservices.com. Thank you for trusting Genesis SA Services LLC! Goodbye.",
+        voice='alice', language='en-US')
+    resp.hangup()
     return Response(str(resp), mimetype='text/xml')
 
 @app.route("/gather_language", methods=["POST"])
@@ -139,7 +147,7 @@ def voice_es():
         language='es-ES'
     )
     gather.say(
-        "¡Hola y bienvenido a Genesis SA Services LLC! Nos sentimos honrados de recibir su llamada hoy. En Genesis, su satisfacción y tranquilidad son nuestra prioridad. Por favor, díganos en qué podemos ayudarle: jardinería, remoción de árboles, instalación de cercas u otro servicio. ¿Cómo podemos servirle hoy?",
+        "¡Hola y bienvenido a Genesis SA Services LLC! Nos sentimos honrados de recibir su llamada hoy. En Genesis, su satisfacción y tranquilidad son nuestra prioridad. ¿Me puede decir su nombre, por favor?",
         voice='alice', language='es-ES')
     resp.say(
         "No pudimos escuchar su respuesta. Si necesita ayuda, por favor llámenos de nuevo o visite genesissaservices.com. ¡Gracias por confiar en Genesis SA Services LLC! Adiós.",
