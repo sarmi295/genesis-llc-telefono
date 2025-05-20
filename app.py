@@ -96,6 +96,13 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated
 
+@app.route("/admin")
+def admin_panel():
+    if not session.get("admin_user"):
+        return redirect(url_for("login"))
+    # Aquí puedes renderizar el panel de administración real
+    return "<h1>Genesis SA Services LLC Admin Panel</h1><p>Bienvenido, {}!</p>".format(session["admin_user"])
+
 @csrf.exempt
 @app.route("/voice", methods=["POST"])
 def voice():
