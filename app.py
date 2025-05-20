@@ -163,4 +163,7 @@ def voice_es():
 def gather_es():
     speech_result = request.form.get('SpeechResult')
     print(f"Cliente (ES) dijo: {speech_result}")
-    # ...existing code...
+
+@app.route("/")
+def home():
+    return redirect(url_for("login"))
