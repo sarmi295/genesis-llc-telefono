@@ -161,51 +161,175 @@ def admin_panel():
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-    body {font-family: Montserrat, Arial, sans-serif; background: var(--bg, #f8fafc); margin: 0; color: var(--fg, #1a365d);}
-    :root {--bg: #f8fafc; --fg: #1a365d; --card: #fff; --table: #f8fafc; --th: #e3eaf2; --empty: #b0b8c1;}
-    body.dark {--bg: #1a2332; --fg: #f8fafc; --card: #232e3c; --table: #232e3c; --th: #2d3a4a; --empty: #6c7a89;}
-    .container {max-width: 1100px; margin: 40px auto; background: var(--card); padding: 36px 32px 32px 32px; border-radius: 18px; box-shadow: 0 4px 24px rgba(44,83,100,0.13);}
-    .header {display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;}
-    .logo-genesis {width: 80px; border-radius: 12px; box-shadow: 0 2px 8px rgba(44,83,100,0.10);}
-    .logout-btn {background: #c0392b; color: #fff; padding: 9px 22px; border: none; border-radius: 8px; font-weight: 700; font-size: 1em; cursor: pointer; transition: background 0.2s;}
-    .logout-btn:hover {background: #a93226;}
-    .dark-toggle {background: #1a365d; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; margin-left: 18px; cursor: pointer; font-size: 1em;}
-    h1 {color: var(--fg); font-size: 2.2em; margin: 0 0 8px 0;}
-    .summary-cards {display: flex; gap: 24px; margin-bottom: 32px;}
-    .card {flex: 1; background: linear-gradient(120deg, #e3eaf2 0%, #f8fafc 100%); border-radius: 12px; padding: 22px 18px; box-shadow: 0 2px 8px rgba(44,83,100,0.07); display: flex; align-items: center; gap: 18px;}
-    body.dark .card {background: linear-gradient(120deg, #232e3c 0%, #1a2332 100%);}
-    .card i {font-size: 2.2em; color: var(--fg);}
-    .card .info {display: flex; flex-direction: column;}
-    .card .info .label {font-size: 1em; color: #5a6a85;}
-    .card .info .value {font-size: 1.5em; font-weight: 700; color: var(--fg);}
+    body {
+      font-family: Montserrat, Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa 0%, #f8fafc 100%);
+      margin: 0;
+      color: var(--fg, #1a365d);
+      transition: background 0.4s;
+    }
+    :root {
+      --bg: #f8fafc;
+      --fg: #1a365d;
+      --card: #fff;
+      --table: #f8fafc;
+      --th: #e3eaf2;
+      --empty: #b0b8c1;
+      --accent1: #1a8cff;
+      --accent2: #1ad18c;
+      --accent-gradient: linear-gradient(90deg, #1a8cff 0%, #1ad18c 100%);
+    }
+    body.dark {
+      --bg: #1a2332;
+      --fg: #f8fafc;
+      --card: #232e3c;
+      --table: #232e3c;
+      --th: #2d3a4a;
+      --empty: #6c7a89;
+      --accent1: #1ad18c;
+      --accent2: #1a8cff;
+      --accent-gradient: linear-gradient(90deg, #1ad18c 0%, #1a8cff 100%);
+      background: linear-gradient(135deg, #232e3c 0%, #1a2332 100%);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      background: var(--card);
+      padding: 36px 32px 32px 32px;
+      border-radius: 28px;
+      box-shadow: 0 4px 24px rgba(44,83,100,0.13);
+      transition: background 0.4s;
+    }
+    .header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;
+    }
+    .logo-genesis {
+      width: 80px; border-radius: 18px; box-shadow: 0 2px 8px rgba(44,83,100,0.10);
+    }
+    .logout-btn {
+      background: var(--accent1);
+      color: #fff;
+      padding: 11px 26px;
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-left: 10px;
+      box-shadow: 0 2px 8px rgba(26,140,255,0.10);
+    }
+    .logout-btn:hover {
+      background: var(--accent2);
+    }
+    .dark-toggle {
+      background: var(--accent2);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 10px 20px;
+      margin-left: 18px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px rgba(26,209,140,0.10);
+    }
+    .dark-toggle:hover {
+      background: var(--accent1);
+    }
+    h1 {
+      color: var(--fg);
+      font-size: 2.3em;
+      margin: 0 0 8px 0;
+    }
+    .summary-cards {
+      display: flex; gap: 24px; margin-bottom: 32px;
+    }
+    .card {
+      flex: 1;
+      background: var(--accent-gradient);
+      border-radius: 22px;
+      padding: 28px 20px;
+      box-shadow: 0 2px 12px rgba(44,83,100,0.10);
+      display: flex; align-items: center; gap: 18px;
+      color: #fff;
+      transition: background 0.4s;
+    }
+    body.dark .card {
+      background: var(--accent-gradient);
+      color: #fff;
+    }
+    .card i {
+      font-size: 2.5em;
+      color: #fff;
+      filter: drop-shadow(0 2px 6px rgba(26,140,255,0.10));
+    }
+    .card .info {
+      display: flex; flex-direction: column;
+    }
+    .card .info .label {
+      font-size: 1.1em; color: #e0f7fa;
+    }
+    .card .info .value {
+      font-size: 1.7em; font-weight: 700; color: #fff;
+    }
     .section {margin-bottom: 38px;}
     .section h2 {color: var(--fg); font-size: 1.3em; margin-bottom: 12px;}
-    table {width: 100%; border-collapse: collapse; margin-bottom: 18px; background: var(--table); border-radius: 10px; overflow: hidden;}
-    th, td {padding: 12px 10px; text-align: left;}
-    th {background: var(--th); color: var(--fg); font-weight: 700;}
+    table {
+      width: 100%; border-collapse: collapse; margin-bottom: 18px; background: var(--table); border-radius: 16px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(44,83,100,0.07);
+    }
+    th, td {padding: 14px 12px; text-align: left;}
+    th {
+      background: var(--th); color: var(--fg); font-weight: 700;
+      border-bottom: 2px solid var(--accent1);
+    }
     tr {transition: background 0.15s;}
-    tr:hover {background: #f1f6fa;}
+    tr:hover {background: #e0f7fa;}
     body.dark tr:hover {background: #2d3a4a;}
     td {color: var(--fg);}
     .empty {color: var(--empty); font-style: italic;}
     ul {padding-left: 18px;}
     li {margin-bottom: 7px; color: var(--fg);}
-    .notif {background: #eafaf1; color: #1a7f37; border: 1px solid #b7e4c7; padding: 10px 18px; border-radius: 8px; margin-bottom: 18px; font-weight: 600;}
+    .notif {
+      background: #eafaf1; color: #1a7f37; border: 1px solid #b7e4c7; padding: 12px 22px; border-radius: 12px; margin-bottom: 18px; font-weight: 600;
+      box-shadow: 0 2px 8px rgba(26,209,140,0.07);
+    }
     .notif.error {background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb;}
     .pagination {display: flex; gap: 8px; margin-bottom: 18px;}
-    .pagination button {background: #1a365d; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 1em;}
-    .pagination button.active {background: #34495e;}
-    .pagination button:disabled {background: #b0b8c1; color: #fff; cursor: not-allowed;}
-    .edit-btn, .delete-btn {background: #e3eaf2; color: #1a365d; border: none; border-radius: 6px; padding: 5px 10px; margin-right: 4px; cursor: pointer; font-size: 0.97em;}
-    .edit-btn:hover {background: #d1e7dd;}
+    .pagination button {
+      background: var(--accent1); color: #fff; border: none; border-radius: 10px; padding: 8px 18px; cursor: pointer; font-size: 1em;
+      transition: background 0.2s;
+    }
+    .pagination button.active, .pagination button:disabled {
+      background: var(--accent2); color: #fff; cursor: not-allowed;
+    }
+    .edit-btn, .delete-btn {
+      background: var(--accent2); color: #fff; border: none; border-radius: 8px; padding: 7px 14px; margin-right: 4px; cursor: pointer; font-size: 1em;
+      transition: background 0.2s;
+    }
+    .edit-btn:hover {background: var(--accent1);}
     .delete-btn {background: #fdecea; color: #c0392b;}
-    .delete-btn:hover {background: #f5c6cb;}
-    .add-form {background: var(--th); padding: 18px 16px; border-radius: 10px; margin-bottom: 18px;}
-    .add-form input, .add-form textarea {width: 100%; padding: 7px 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #b0b8c1;}
-    .add-form button {background: #1a365d; color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font-weight: 700;}
+    .delete-btn:hover {background: #f5c6cb; color: #fff;}
+    .add-form {
+      background: var(--th); padding: 22px 18px; border-radius: 14px; margin-bottom: 18px;
+      box-shadow: 0 2px 8px rgba(44,83,100,0.07);
+    }
+    .add-form input, .add-form textarea {
+      width: 100%; padding: 9px 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #b0b8c1;
+      font-size: 1em;
+    }
+    .add-form button {
+      background: var(--accent1); color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-weight: 700; font-size: 1em;
+      transition: background 0.2s;
+    }
+    .add-form button:hover {background: var(--accent2);}
     .add-form label {font-weight: 600; color: var(--fg);}
-    .download-btn {background: #1a365d; color: #fff; border: none; border-radius: 6px; padding: 7px 16px; margin-right: 8px; font-size: 1em; cursor: pointer;}
-    .download-btn:hover {background: #34495e;}
+    .download-btn {
+      background: var(--accent1); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; margin-right: 8px; font-size: 1em; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .download-btn:hover {background: var(--accent2);}
     @media (max-width: 800px) {
       .summary-cards {flex-direction: column; gap: 12px;}
       .container {padding: 18px 4vw;}
