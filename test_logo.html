@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Logo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            text-align: center;
+            padding: 50px;
+            font-family: Arial, sans-serif;
+        }
+        .logo-container {
+            margin: 20px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            width: fit-content;
+        }
+        img {
+            max-width: 300px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prueba de visualización de logos</h1>
+    
+    <div class="logo-container">
+        <h2>Logo Genesis Original (url_for)</h2>
+        <img src="static/logo_genesis.png" alt="Genesis Logo Original" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <p style="color: red; display: none;">Error: No se pudo cargar la imagen</p>
+    </div>
+    
+    <div class="logo-container">
+        <h2>Logo Test (url_for)</h2>
+        <img src="static/logo_test.png" alt="Logo Test" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <p style="color: red; display: none;">Error: No se pudo cargar la imagen</p>
+    </div>
+    
+    <div class="logo-container">
+        <h2>Imagen genérica de internet (referencia)</h2>
+        <img src="https://via.placeholder.com/150" alt="Placeholder" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <p style="color: red; display: none;">Error: No se pudo cargar la imagen</p>
+    </div>
+</body>
+</html>
