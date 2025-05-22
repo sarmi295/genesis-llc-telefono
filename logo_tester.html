@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logo Tester - Genesis SA Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            text-align: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .logo-container {
+            margin: 20px auto;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            padding: 10px;
+            background: #fff;
+            border-radius: 4px;
+        }
+        .error {
+            color: red;
+            display: none;
+            margin-top: 10px;
+        }
+        .success {
+            color: green;
+            display: none;
+            margin-top: 10px;
+        }
+        h1 {
+            color: #1a365d;
+        }
+        h3 {
+            color: #2c5364;
+            margin-top: 10px;
+        }
+        .info {
+            background: #e6f7ff;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+        button {
+            background: #1a365d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0f2a4a;
+        }
+        .url-info {
+            font-family: monospace;
+            background: #eee;
+            padding: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Genesis SA Services LLC - Diagnóstico de Logo</h1>
+    <p>Esta página prueba las diferentes formas de cargar el logo en la aplicación.</p>
+    
+    <div class="logo-container">
+        <h3>1. Logo mediante URL estática directa</h3>
+        <img id="img1" src="/static/logo_genesis.png" alt="Logo Genesis (static)" 
+             onerror="this.style.display='none'; document.getElementById('error1').style.display='block';"
+             onload="document.getElementById('success1').style.display='block';">
+        <p id="error1" class="error">❌ Error: No se pudo cargar la imagen desde <span class="url-info">/static/logo_genesis.png</span></p>
+        <p id="success1" class="success">✅ Éxito: La imagen se cargó correctamente desde <span class="url-info">/static/logo_genesis.png</span></p>
+        <div class="info">
+            Esta URL utiliza el directorio estático de Flask (<code>/static/</code>).
+        </div>
+    </div>
+    
+    <div class="logo-container">
+        <h3>2. Logo mediante ruta personalizada</h3>
+        <img id="img2" src="/logo/logo_genesis.png" alt="Logo Genesis (logo route)" 
+             onerror="this.style.display='none'; document.getElementById('error2').style.display='block';"
+             onload="document.getElementById('success2').style.display='block';">
+        <p id="error2" class="error">❌ Error: No se pudo cargar la imagen desde <span class="url-info">/logo/logo_genesis.png</span></p>
+        <p id="success2" class="success">✅ Éxito: La imagen se cargó correctamente desde <span class="url-info">/logo/logo_genesis.png</span></p>
+        <div class="info">
+            Esta URL utiliza la ruta personalizada de Flask (<code>/logo/</code>) que hemos programado.
+        </div>
+    </div>
+    
+    <div class="logo-container">
+        <h3>3. Logo de prueba (alternativo)</h3>
+        <img id="img3" src="/logo/logo_test.png" alt="Logo Test" 
+             onerror="this.style.display='none'; document.getElementById('error3').style.display='block';"
+             onload="document.getElementById('success3').style.display='block';">
+        <p id="error3" class="error">❌ Error: No se pudo cargar el logo de prueba desde <span class="url-info">/logo/logo_test.png</span></p>
+        <p id="success3" class="success">✅ Éxito: El logo de prueba se cargó correctamente desde <span class="url-info">/logo/logo_test.png</span></p>
+        <div class="info">
+            Este es un logo alternativo que se usa como respaldo si el principal no funciona.
+        </div>
+    </div>
+
+    <div class="logo-container">
+        <h3>4. Logo mediante Base64 (último recurso)</h3>
+        <div id="base64Container">
+            <p>Cargando...</p>
+        </div>
+        <div class="info">
+            Este método utiliza una codificación Base64 directa en el HTML, que debería funcionar incluso si hay problemas con la configuración de archivos estáticos.
+        </div>
+        <button onclick="cargarBase64()">Probar carga con Base64</button>
+    </div>
+    
+    <div class="logo-container">
+        <h3>5. Imagen de referencia externa</h3>
+        <img id="img5" src="https://via.placeholder.com/150" alt="Placeholder" 
+             onerror="this.style.display='none'; document.getElementById('error5').style.display='block';"
+             onload="document.getElementById('success5').style.display='block';">
+        <p id="error5" class="error">❌ Error: No se pudo cargar la imagen externa de referencia</p>
+        <p id="success5" class="success">✅ Éxito: La imagen externa se cargó correctamente</p>
+        <div class="info">
+            Esta imagen proviene de un servicio externo. Si esta imagen carga pero las otras no, indica un problema con la configuración de archivos estáticos de la aplicación.
+        </div>
+    </div>
+
+    <div class="logo-container">
+        <h3>Diagnóstico del entorno</h3>
+        <div id="diagnosticInfo">
+            <p><strong>Navegador:</strong> <span id="browserInfo">Detectando...</span></p>
+            <p><strong>URL actual:</strong> <span id="currentUrl">Detectando...</span></p>
+            <p><strong>Hora del servidor:</strong> <span id="serverTime">-</span></p>
+        </div>
+        <button onclick="runDiagnostics()">Ejecutar diagnóstico</button>
+    </div>
+
+    <script>
+        // Este script verificará si hay problemas con las imágenes
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Verificando imágenes...");
+            document.getElementById('browserInfo').innerText = navigator.userAgent;
+            document.getElementById('currentUrl').innerText = window.location.href;
+        });
+        
+        function cargarBase64() {
+            fetch('/logo_base64?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('base64Container').innerHTML = 
+                            `<img src="${data.data}" alt="Logo Base64">
+                             <p class="success" style="display:block">✅ Éxito: El logo se cargó correctamente usando Base64</p>`;
+                    } else {
+                        document.getElementById('base64Container').innerHTML = 
+                            `<p class="error" style="display:block">❌ Error: No se pudo cargar el logo con Base64</p>`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('base64Container').innerHTML = 
+                        `<p class="error" style="display:block">❌ Error al solicitar el logo Base64: ${error.message}</p>`;
+                });
+        }
+        
+        function runDiagnostics() {
+            // Obtener la hora del servidor
+            fetch('/test_logo?serverTime=1')
+                .then(response => response.text())
+                .then(time => {
+                    document.getElementById('serverTime').innerText = time;
+                })
+                .catch(error => {
+                    document.getElementById('serverTime').innerText = "Error: " + error.message;
+                });
+                
+            // Verificar todas las imágenes
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                console.log(`Imagen ${img.id}: ${img.complete ? 'Cargada' : 'No cargada'}`);
+            });
+        }
+    </script>
+</body>
+</html>

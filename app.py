@@ -14,13 +14,29 @@ import csv
 import traceback
 import math
 import io
+import base64
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static', static_folder='static')
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecretkey")  # Cambia esto en producción
 csrf = CSRFProtect(app)
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Establecer una regla para servir archivos estáticos desde /static
+app.add_url_rule('/static/<path:filename>', 
+                 endpoint='static', 
+                 view_func=app.send_static_file)
+
+# Configurar cabeceras de caché para archivos estáticos
+@app.after_request
+def add_header(response):
+    # Agregar cabeceras solo para archivos estáticos o logos
+    if request.path.startswith('/static/') or request.path.startswith('/logo/'):
+        response.headers['Cache-Control'] = 'public, max-age=86400'  # 24 horas
+        # Agregar encabezados para evitar problemas de CORS
+        response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 # Advertencia sobre HTTPS en producción
 # if not app.debug and not os.getenv('RENDER', '').lower() == 'true':
@@ -65,16 +81,30 @@ def login():
     return render_template_string('''
     <html><head><title>Admin Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <style>body{font-family:Montserrat;background:#f8fafc;display:flex;align-items:center;justify-content:center;height:100vh;}
-    .login-box{background:#fff;padding:32px 28px;border-radius:14px;box-shadow:0 2px 12px rgba(44,83,100,0.13);max-width:340px;width:100%;}
-    h2{color:#1a365d;margin-bottom:18px;}
-    input{width:100%;padding:9px 12px;margin-bottom:14px;border-radius:7px;border:1px solid #b0b8c1;}
-    button{width:100%;background:#1a365d;color:#fff;padding:10px 0;border:none;border-radius:7px;font-weight:700;font-size:1.1em;}
+    <style>body{font-family:Montserrat;background:#f8fafc;display:flex;align-items:center;justify-content:center;height:100vh;}    .login-box{background:#fff;padding:32px 28px;border-radius:14px;box-shadow:0 2px 12px rgba(44,83,100,0.13);max-width:340px;width:100%;}
+    h2{color:#1a365d;margin-bottom:18px;}    input{width:100%;padding:9px 12px;margin-bottom:14px;border-radius:7px;border:1px solid #b0b8c1;}    button{width:100%;background:#1a365d;color:#fff;padding:10px 0;border:none;border-radius:7px;font-weight:700;font-size:1.1em;}
     .error{color:#c0392b;margin-bottom:10px;}
-    .logo-genesis{display:block;margin:0 auto 18px auto;width:90px;border-radius:10px;box-shadow:0 2px 8px rgba(44,83,100,0.10);}
-    </style></head><body>
-    <form class="login-box" method="post">
-        <img src="/static/logo_genesis.png" alt="Genesis Logo" class="logo-genesis"/>
+    .logo-genesis{display:block;margin:0 auto 18px auto;max-width:150px;height:auto;width:auto;border-radius:10px;box-shadow:0 2px 8px rgba(44,83,100,0.10);padding:8px;background:#fff;object-fit:contain;}
+    </style></head><body>    <form class="login-box" method="post">        <div style="text-align:center;">
+            <!-- Logo con múltiples métodos de respaldo -->
+            <img src="/static/logo_genesis.png" alt="Genesis SA Services LLC" class="logo-genesis" 
+                 onerror="this.onerror=null; this.src='/logo/logo_genesis.png'; 
+                 this.onerror=function(){this.onerror=null; this.src='/logo/logo_test.png';
+                 this.onerror=function(){loadBase64Logo(this);}}"
+                 >
+            <script>
+            function loadBase64Logo(imgElem) {
+                fetch('/logo_base64?format=json')
+                .then(r => r.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        imgElem.src = data.data;
+                    }
+                })
+                .catch(e => console.error('Error loading base64 logo:', e));
+            }
+            </script>
+        </div>
         <h2>Admin Login</h2>
         {% if error %}<div class="error">{{error}}</div>{% endif %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
@@ -199,12 +229,20 @@ def admin_panel():
       border-radius: 28px;
       box-shadow: 0 4px 24px rgba(44,83,100,0.13);
       transition: background 0.4s;
-    }
-    .header {
+    }    .header {
       display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;
     }
     .logo-genesis {
-      width: 80px; border-radius: 18px; box-shadow: 0 2px 8px rgba(44,83,100,0.10);
+      max-width: 150px;
+      width: auto;
+      height: auto;
+      border-radius: 18px;
+      box-shadow: 0 2px 8px rgba(44,83,100,0.10);
+      background: #fff;
+      padding: 8px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
     }
     .logout-btn {
       background: var(--accent1);
@@ -254,10 +292,12 @@ def admin_panel():
       display: flex; align-items: center; gap: 18px;
       color: #fff;
       transition: background 0.4s;
-    }
-    body.dark .card {
+    }    body.dark .card {
       background: var(--accent-gradient);
       color: #fff;
+    }
+    body.dark .logo-genesis {
+      background: #fff;
     }
     .card i {
       font-size: 2.5em;
@@ -334,13 +374,27 @@ def admin_panel():
       .summary-cards {flex-direction: column; gap: 12px;}
       .container {padding: 18px 4vw;}
       table, th, td {font-size: 0.97em;}
-    }
-    </style>
-    </head>
-    <body>
-    <div class="container">
-      <div class="header">
-        <img src="/static/logo_genesis.png" alt="Genesis Logo" class="logo-genesis"/>
+    }    </style>
+    </head>    <body>    <div class="container">      <div class="header">        <div style="text-align:center;">
+          <!-- Logo con múltiples métodos de respaldo -->
+          <img src="/static/logo_genesis.png" alt="Genesis SA Services LLC" class="logo-genesis" 
+               onerror="this.onerror=null; this.src='/logo/logo_genesis.png'; 
+               this.onerror=function(){this.onerror=null; this.src='/logo/logo_test.png';
+               this.onerror=function(){loadBase64Logo(this);}}"
+               >
+          <script>
+          function loadBase64Logo(imgElem) {
+              fetch('/logo_base64?format=json')
+              .then(r => r.json())
+              .then(data => {
+                  if(data.status === 'success') {
+                      imgElem.src = data.data;
+                  }
+              })
+              .catch(e => console.error('Error loading base64 logo:', e));
+          }
+          </script>
+        </div>
         <div>
           <button class="dark-toggle" onclick="toggleDark()"><i class="fas fa-moon"></i> Dark Mode</button>
           <button class="logout-btn" onclick="window.location.href='/logout'"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -649,6 +703,37 @@ def gather_es():
 def home():
     return redirect(url_for("login"))
 
+@app.route("/logo/<filename>")
+def get_logo(filename):
+    """Ruta mantenida por compatibilidad, pero ahora sirve directamente el archivo estático"""
+    try:
+        # Validamos que el archivo solicitado sea realmente un logo
+        if not filename.startswith("logo_") and not filename == "logo.png":
+            raise FileNotFoundError("Archivo no permitido")
+            
+        # Intentamos servir el archivo solicitado
+        file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static", filename)
+        if os.path.exists(file_path):
+            response = make_response(send_file(file_path, as_attachment=False, mimetype='image/png'))
+            # Añadimos encabezados para mejorar el caching
+            response.headers["Cache-Control"] = "public, max-age=86400"  # Cache por 24 horas
+            return response
+        else:
+            raise FileNotFoundError(f"No se encontró el archivo: {filename}")
+    except Exception as e:
+        try:
+            # Si hay error, intentamos primero con logo_genesis.png
+            file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static", "logo_genesis.png")
+            response = make_response(send_file(file_path, as_attachment=False, mimetype='image/png'))
+            response.headers["Cache-Control"] = "public, max-age=86400"
+            return response
+        except:
+            # Si todavía hay error, usamos el logo de prueba
+            file_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static", "logo_test.png")
+            response = make_response(send_file(file_path, as_attachment=False, mimetype='image/png'))
+            response.headers["Cache-Control"] = "public, max-age=86400"
+            return response
+
 @app.route("/add_test_data")
 def add_test_data():
     # Agrega citas de prueba
@@ -660,6 +745,94 @@ def add_test_data():
         f.write("John Doe: Please call me back about my landscaping appointment.\n")
         f.write("Jane Smith: I need a tree removed urgently.\n")
     return "Test data added! <a href='/admin'>Go to Admin Panel</a>"
+
+@app.route("/test_logo")
+def test_logo_page():
+    """Página para probar la visualización de los logos"""
+    if request.args.get('serverTime'):
+        import datetime
+        return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+    with open("logo_tester.html", "r", encoding="utf-8") as f:
+        html_content = f.read()
+    return html_content
+
+@app.route("/logo_base64")
+def get_logo_base64():
+    """En caso extremo, devuelve el logo como una imagen embebida en base64"""
+    try:
+        logo_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static", "logo_genesis.png")
+        with open(logo_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        
+        # Esta página también ofrece una URL JSON para usar en otros contextos
+        if request.args.get('format') == 'json':
+            return jsonify({
+                "status": "success",
+                "data": f"data:image/png;base64,{encoded_string}"
+            })
+            
+        return f'''
+        <!DOCTYPE html>
+        <html><head><title>Logo Base64</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{ font-family: Arial, sans-serif; text-align: center; padding: 20px; }}
+            textarea {{ width: 80%; height: 100px; margin: 20px auto; }}
+            img {{ max-width: 200px; margin: 20px auto; display: block; }}
+        </style>
+        </head>
+        <body style="text-align:center;padding:20px;">
+            <h2>Logo en formato Base64</h2>
+            <img src="data:image/png;base64,{encoded_string}" alt="Genesis Logo">
+            <p>Si puedes ver esta imagen, puedes usar esta técnica como último recurso.</p>
+            <p>HTML para incluir esta imagen:</p>
+            <textarea style="width:80%;height:100px;margin:20px auto;">
+&lt;img src="data:image/png;base64,{encoded_string}" alt="Genesis Logo"&gt;
+            </textarea>
+            <p>URL para probar directamente: <a href="/logo/logo_genesis.png" target="_blank">/logo/logo_genesis.png</a></p>
+            <p>URL para probar vía static: <a href="/static/logo_genesis.png" target="_blank">/static/logo_genesis.png</a></p>
+        </body></html>
+        '''
+    except Exception as e:
+        try:
+            # Intentamos cargar el logo desde el archivo de respaldo
+            with open("encoded_logo.txt", "r") as f:
+                encoded_string = f.read().strip()
+                
+            # Esta página también ofrece una URL JSON para usar en otros contextos
+            if request.args.get('format') == 'json':
+                return jsonify({
+                    "status": "success",
+                    "data": f"data:image/png;base64,{encoded_string}",
+                    "source": "backup"
+                })
+                
+            return f'''
+            <!DOCTYPE html>
+            <html><head><title>Logo Base64 (from backup)</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {{ font-family: Arial, sans-serif; text-align: center; padding: 20px; }}
+                textarea {{ width: 80%; height: 100px; margin: 20px auto; }}
+                img {{ max-width: 200px; margin: 20px auto; display: block; }}
+            </style>
+            </head>
+            <body style="text-align:center;padding:20px;">
+                <h2>Logo en formato Base64 (desde respaldo)</h2>
+                <img src="data:image/png;base64,{encoded_string}" alt="Genesis Logo">
+                <p>Si puedes ver esta imagen, puedes usar esta técnica como último recurso.</p>
+                <p>HTML para incluir esta imagen:</p>
+                <textarea style="width:80%;height:100px;margin:20px auto;">
+&lt;img src="data:image/png;base64,{encoded_string}" alt="Genesis Logo"&gt;
+                </textarea>
+            </body></html>
+            '''
+        except:
+            return jsonify({
+                "status": "error",
+                "message": "No se pudo cargar el logo como base64."
+            }) if request.args.get('format') == 'json' else "No se pudo cargar el logo como base64."
 
 @app.route("/export_pdf")
 def export_pdf():
