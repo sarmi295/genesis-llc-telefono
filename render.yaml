@@ -12,7 +12,7 @@ services:
       - key: FLASK_ENV
         value: production
       - key: RENDER
-        value: true
+        value: "true"
       - key: PORT
         value: 10000
       - key: FLASK_SECRET_KEY
