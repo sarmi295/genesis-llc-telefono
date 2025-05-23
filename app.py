@@ -1,4 +1,5 @@
 import os
+print("=== DEPLOY 22-MAY-2025: Código actualizado ===")
 from flask import Flask, request, Response, session, redirect, url_for, render_template_string, send_file, flash, jsonify, make_response
 from twilio.twiml.voice_response import VoiceResponse
 import openai
@@ -18,15 +19,18 @@ import base64
 
 load_dotenv()
 
+# Detectar si estamos en Render
+IS_RENDER = os.getenv('RENDER', '').lower() == 'true'
+
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecretkey")  # Cambia esto en producción
 csrf = CSRFProtect(app)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Establecer una regla para servir archivos estáticos desde /static
-app.add_url_rule('/static/<path:filename>', 
-                 endpoint='static', 
-                 view_func=app.send_static_file)
+# Endpoint de salud para Render
+@app.route('/healthz')
+def healthz():
+    return 'ok', 200
 
 # Configurar cabeceras de caché para archivos estáticos
 @app.after_request
@@ -34,16 +38,15 @@ def add_header(response):
     # Agregar cabeceras solo para archivos estáticos o logos
     if request.path.startswith('/static/') or request.path.startswith('/logo/'):
         response.headers['Cache-Control'] = 'public, max-age=86400'  # 24 horas
-        # Agregar encabezados para evitar problemas de CORS
         response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
-# Advertencia sobre HTTPS en producción
-# if not app.debug and not os.getenv('RENDER', '').lower() == 'true':
-#     @app.before_request
-#     def enforce_https():
-#         if not request.is_secure:
-#             return '<b>Warning:</b> This admin panel should be accessed over HTTPS for security.', 403
+# Advertencia sobre HTTPS en producción (solo si no es Render)
+if not app.debug and not IS_RENDER:
+    @app.before_request
+    def enforce_https():
+        if not request.is_secure:
+            return '<b>Warning:</b> This admin panel should be accessed over HTTPS for security.', 403
 
 PROMPT = (
     "Hello, thanks for calling Genesis SA Services LLC. What's your name?\n"
@@ -857,7 +860,7 @@ def export_pdf():
         c.drawString(30, y, f"{i+1}. Name: {cita[0]}, Service: {cita[1]}, Date: {cita[2]}, Address: {cita[3]}, Email: {cita[4]}, Message: {cita[5] if len(cita)>5 else ''}")
         y -= 22
         if y < 60:
-            c.showPage()
+            c.showPage();
             y = 750
     c.save()
     buffer.seek(0)
@@ -865,7 +868,9 @@ def export_pdf():
 
 # --- Agregar datos de ejemplo si es necesario al iniciar la app ---
 def auto_add_test_data():
-    # Solo agrega si no hay citas ni mensajes
+    # Solo agrega si no hay citas ni mensajes y NO estamos en Render
+    if IS_RENDER:
+        return
     if not os.path.exists("citas_clientes.txt") or os.path.getsize("citas_clientes.txt") == 0:
         with open("citas_clientes.txt", "a", encoding="utf-8") as f:
             f.write("John Doe|Landscaping|2025-06-01|123 Main St|john@example.com|Please call before coming.\n")
