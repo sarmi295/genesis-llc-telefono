@@ -1,8 +1,12 @@
 services:
   - type: web
     name: genesis-sa-services
-    env: python
+    runtime: python
     buildCommand: chmod +x ./build.sh ./render_start.sh && ./build.sh && ./render_start.sh
     startCommand: gunicorn app:app
     envVars:
       - fromFile: .env.render
+    plan: free
+    autoDeploy: true
+    pythonVersion: 3.9
+    region: oregon
