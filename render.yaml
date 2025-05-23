@@ -2,7 +2,18 @@ services:
   - type: web
     name: genesis-sa-services
     runtime: python
-    buildCommand: chmod +x ./build.sh ./render_start.sh && ./build.sh && ./render_start.sh
+    buildCommand: chmod +x build.sh render_start.sh && ./build.sh && ./render_start.sh
     startCommand: gunicorn app:app
     envVars:
-      - fromFile: .env.render
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: FLASK_APP
+        value: app.py
+      - key: FLASK_ENV
+        value: production
+      - key: RENDER
+        value: true
+      - key: PORT
+        value: 10000
+      - key: FLASK_SECRET_KEY
+        value: render_deployment_secure_key_2025

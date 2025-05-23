@@ -1,0 +1,9 @@
+{
+  "render": {
+    "buildpacks": {
+      "python": {
+        "version": "3.9"
+      }
+    }
+  }
+}
