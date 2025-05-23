@@ -6,7 +6,3 @@ services:
     startCommand: gunicorn app:app
     envVars:
       - fromFile: .env.render
-    plan: free
-    autoDeploy: true
-    pythonVersion: 3.9
-    region: oregon
